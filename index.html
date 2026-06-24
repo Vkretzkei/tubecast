@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TubeCast</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080810;
+      --surface: #0f0f1a;
+      --surface2: #13131f;
+      --border: #1e1e30;
+      --border2: #2a2a40;
+      --yellow: #e8ff47;
+      --blue: #5b8dff;
+      --purple: #a855f7;
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --text: #eeeef5;
+      --muted: #4a4a6a;
+      --muted2: #7a7a9a;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1.5rem; position: relative;
+    }
+
+    body::before {
+      content: ''; position: fixed;
+      width: 600px; height: 600px; top: -200px; left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(91,141,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: ''; position: fixed;
+      width: 400px; height: 400px; bottom: -100px; right: -100px;
+      background: radial-gradient(circle, rgba(168,85,247,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .wrap { width: 100%; max-width: 520px; position: relative; z-index: 1; }
+
+    header { text-align: center; margin-bottom: 2.5rem; }
+    .logo-wrap { display: inline-flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--blue), #8b5cf6);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .logo-text {
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, #fff 0%, #a0a0cc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .tagline { font-size: 0.78rem; color: var(--muted2); letter-spacing: 0.05em; }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+    /* Tabs */
+    .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--border); }
+    .tab {
+      padding: 1rem 0.5rem; text-align: center;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.78rem;
+      cursor: pointer; color: var(--muted2); border: none; background: transparent;
+      transition: all 0.2s; letter-spacing: 0.02em; position: relative;
+    }
+    .tab::after {
+      content: ''; position: absolute; bottom: -1px; left: 20%; right: 20%;
+      height: 2px; border-radius: 2px; transition: opacity 0.2s; opacity: 0;
+    }
+    .tab.mp3::after    { background: var(--yellow); }
+    .tab.trans::after  { background: var(--blue); }
+    .tab.upload::after { background: var(--purple); }
+    .tab.active { color: var(--text); }
+    .tab.active::after { opacity: 1; }
+    .tab.active.mp3    { color: var(--yellow); }
+    .tab.active.trans  { color: var(--blue); }
+    .tab.active.upload { color: var(--purple); }
+
+    /* Form */
+    .form-body { padding: 1.8rem; }
+    .field { margin-bottom: 1.2rem; }
+
+    label {
+      display: block; font-size: 0.7rem; font-weight: 500; color: var(--muted2);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.45rem;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 0.88rem;
+      padding: 0.8rem 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus     { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(232,255,71,0.08); }
+    input[type="password"]:focus { border-color: var(--blue);   box-shadow: 0 0 0 3px rgba(91,141,255,0.1); }
+    input::placeholder { color: var(--muted); }
+    .hint { font-size: 0.68rem; color: var(--muted); margin-top: 0.35rem; }
+
+    /* Label row com badge */
+    .label-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem; }
+    .label-row label { margin-bottom: 0; }
+    .badge-free {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
+      background: rgba(74,222,128,0.12); color: var(--green);
+      border: 1px solid rgba(74,222,128,0.25);
+      padding: 0.15rem 0.5rem; border-radius: 99px; text-transform: uppercase;
+    }
+    .badge-saved {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
+      background: rgba(91,141,255,0.12); color: var(--blue);
+      border: 1px solid rgba(91,141,255,0.25);
+      padding: 0.15rem 0.5rem; border-radius: 99px; text-transform: uppercase;
+      display: none;
+    }
+    .badge-saved.visible { display: inline-block; }
+
+    /* Toggle auto-transcrever */
+    .auto-transcribe-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: var(--radius-sm); padding: 0.85rem 1rem;
+      cursor: pointer; transition: border-color 0.2s; margin-bottom: 1.2rem;
+      user-select: none;
+    }
+    .auto-transcribe-row:hover { border-color: var(--blue); }
+    .auto-transcribe-row.active { border-color: var(--blue); background: rgba(91,141,255,0.06); }
+
+    .toggle {
+      width: 36px; height: 20px; border-radius: 99px;
+      background: var(--border2); position: relative;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .toggle::after {
+      content: ''; position: absolute;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--muted2); top: 3px; left: 3px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle.on { background: var(--blue); }
+    .toggle.on::after { transform: translateX(16px); background: #fff; }
+
+    .auto-transcribe-text { flex: 1; }
+    .auto-transcribe-text strong { font-size: 0.85rem; color: var(--text); display: block; }
+    .auto-transcribe-text span   { font-size: 0.72rem; color: var(--muted2); }
+
+    /* Painel extra da transcrição automática */
+    .auto-extra {
+      background: rgba(91,141,255,0.04); border: 1px solid rgba(91,141,255,0.15);
+      border-radius: var(--radius-sm); padding: 1rem;
+      margin-bottom: 1.2rem; display: none;
+    }
+    .auto-extra.visible { display: block; }
+    .auto-extra .field { margin-bottom: 0.8rem; }
+    .auto-extra .field:last-child { margin-bottom: 0; }
+
+    /* Pills */
+    .pills { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .pill {
+      padding: 0.4rem 0.9rem; border-radius: 99px; border: 1px solid var(--border2);
+      background: var(--surface2); color: var(--muted2);
+      font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .pill.active-yellow { border-color: var(--yellow); color: var(--yellow); background: rgba(232,255,71,0.06); }
+    .pill.active-blue   { border-color: var(--blue);   color: var(--blue);   background: rgba(91,141,255,0.08); }
+    .pill.active-purple { border-color: var(--purple); color: var(--purple); background: rgba(168,85,247,0.08); }
+
+    /* Drop zone */
+    .dropzone {
+      border: 2px dashed var(--border2); border-radius: var(--radius-sm);
+      padding: 2rem 1rem; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; position: relative;
+    }
+    .dropzone:hover, .dropzone.drag-over { border-color: var(--purple); background: rgba(168,85,247,0.05); }
+    .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .dropzone-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .dropzone-text { font-size: 0.85rem; color: var(--muted2); }
+    .dropzone-text strong { color: var(--purple); }
+    .dropzone-hint { font-size: 0.68rem; color: var(--muted); margin-top: 0.3rem; }
+    .dropzone-file { margin-top: 0.8rem; font-size: 0.8rem; color: var(--purple); font-weight: 500; display: none; }
+
+    /* Buttons */
+    .btn {
+      width: 100%; border: none; border-radius: var(--radius-sm);
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+      padding: 0.95rem; cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+      margin-top: 0.4rem; letter-spacing: 0.02em;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-yellow { background: var(--yellow); color: #000; }
+    .btn-blue   { background: var(--blue);   color: #fff; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn:hover  { opacity: 0.88; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Status */
+    .status-box {
+      margin: 0 1.8rem 1.8rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1rem 1.2rem; display: none;
+    }
+    .status-box.visible { display: block; }
+    .status-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .status-msg { font-size: 0.8rem; color: var(--muted2); flex: 1; }
+    .status-msg.ok   { color: var(--yellow); }
+    .status-msg.ok-b { color: var(--blue); }
+    .status-msg.ok-p { color: var(--purple); }
+    .status-msg.err  { color: var(--red); }
+    .status-msg.info { color: var(--text); }
+
+    .open-btn {
+      font-size: 0.68rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      color: var(--muted2); background: var(--border2); border: none;
+      border-radius: 6px; padding: 0.25rem 0.6rem; cursor: pointer;
+      white-space: nowrap; transition: color 0.15s, background 0.15s; flex-shrink: 0; display: none;
+    }
+    .open-btn:hover { color: var(--text); background: var(--border); }
+    .open-btn.visible { display: inline-block; }
+
+    .bar-bg { background: var(--border2); border-radius: 99px; height: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+    .bar-fill.yellow { background: var(--yellow); }
+    .bar-fill.blue   { background: var(--blue); }
+    .bar-fill.purple { background: var(--purple); }
+    .bar-meta { display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: 0.7rem; color: var(--muted); }
+
+    footer { margin-top: 1.5rem; text-align: center; font-size: 0.68rem; color: var(--muted); line-height: 1.9; }
+    footer strong { color: var(--muted2); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.15);
+      border-top-color: currentColor; border-radius: 50%;
+      animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    .btn-blue .spinner, .btn-purple .spinner { border-color: rgba(255,255,255,0.2); border-top-color: #fff; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(2rem);
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius-sm); padding: 0.75rem 1.2rem;
+      font-size: 0.8rem; color: var(--text); white-space: nowrap;
+      opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 99;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <div class="logo-wrap">
+        <div class="logo-icon">🎙</div>
+        <span class="logo-text">TubeCast</span>
+      </div>
+      <p class="tagline">Baixe MP3 ou transcreva áudios e vídeos</p>
+    </header>
+
+    <div class="card">
+
+      <div class="tabs">
+        <button class="tab mp3 active" id="tabMp3"    onclick="setMode('mp3')">⬇ MP3</button>
+        <button class="tab trans"      id="tabTrans"  onclick="setMode('trans')">✦ YouTube</button>
+        <button class="tab upload"     id="tabUpload" onclick="setMode('upload')">📁 Arquivo</button>
+      </div>
+
+      <div class="form-body">
+
+        <!-- URL (mp3 + trans) -->
+        <div id="urlSection">
+          <div class="field">
+            <label>Link do YouTube</label>
+            <input type="text" id="urlInput" placeholder="https://youtube.com/watch?v=..." autocomplete="off" spellcheck="false"/>
+          </div>
+        </div>
+
+        <!-- Pasta -->
+        <div class="field">
+          <label>Pasta de destino</label>
+          <input type="text" id="folderInput" placeholder="Deixa vazio para usar a pasta padrão" autocomplete="off" spellcheck="false"/>
+          <p class="hint" id="folderHint">Padrão: carregando...</p>
+        </div>
+
+        <!-- ═══════════════════════════ ABA MP3 ═══════════════════════════ -->
+        <div id="mp3Options">
+          <div class="field" id="qualityField">
+            <label>Qualidade</label>
+            <div class="pills">
+              <button class="pill active-yellow" data-q="320" onclick="setQ(this)">320 kbps</button>
+              <button class="pill" data-q="192" onclick="setQ(this)">192 kbps</button>
+              <button class="pill" data-q="128" onclick="setQ(this)">128 kbps</button>
+            </div>
+          </div>
+
+          <div class="auto-transcribe-row" id="autoRow" onclick="toggleAuto()">
+            <div class="toggle" id="autoToggle"></div>
+            <div class="auto-transcribe-text">
+              <strong>Transcrever automaticamente</strong>
+              <span>Cola o link e gera o Word direto, sem baixar MP3</span>
+            </div>
+          </div>
+
+          <div class="auto-extra" id="autoExtra">
+            <div class="field">
+              <div class="label-row">
+                <label>AssemblyAI API Key</label>
+                <span class="badge-free">100h grátis/mês</span>
+                <span class="badge-saved" id="badgeSavedMp3">● Salva</span>
+              </div>
+              <input type="password" id="apiKeyMp3" placeholder="Cole a tua API Key do AssemblyAI..."
+                     autocomplete="off" oninput="saveApiKey(this.value)"/>
+              <p class="hint">Obtém em assemblyai.com/dashboard</p>
+            </div>
+            <div class="field">
+              <label>Idioma</label>
+              <div class="pills">
+                <button class="pill active-blue" data-lang="pt" onclick="setLang(this,'mp3')">Português</button>
+                <button class="pill" data-lang="en" onclick="setLang(this,'mp3')">English</button>
+                <button class="pill" data-lang="es" onclick="setLang(this,'mp3')">Español</button>
+                <button class="pill" data-lang="" onclick="setLang(this,'mp3')">Auto</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-yellow" id="dlBtn" onclick="startDownload()">⬇ Baixar MP3</button>
+        </div>
+
+        <!-- ═══════════════════════ ABA TRANSCRIÇÃO ═══════════════════════ -->
+        <div id="transOptions" style="display:none">
+          <div class="field">
+            <div class="label-row">
+              <label>AssemblyAI API Key</label>
+              <span class="badge-free">100h grátis/mês</span>
+              <span class="badge-saved" id="badgeSavedTrans">● Salva</span>
+            </div>
+            <input type="password" id="apiKeyTrans" placeholder="Cole a tua API Key do AssemblyAI..."
+                   autocomplete="off" oninput="saveApiKey(this.value)"/>
+            <p class="hint">Obtém em assemblyai.com/dashboard</p>
+          </div>
+          <div class="field">
+            <label>Idioma do vídeo</label>
+            <div class="pills">
+              <button class="pill active-blue" data-lang="pt" onclick="setLang(this,'trans')">Português</button>
+              <button class="pill" data-lang="en" onclick="setLang(this,'trans')">English</button>
+              <button class="pill" data-lang="es" onclick="setLang(this,'trans')">Español</button>
+              <button class="pill" data-lang="" onclick="setLang(this,'trans')">Auto</button>
+            </div>
+          </div>
+          <button class="btn btn-blue" id="transBtn" onclick="startTranscription()">✦ Transcrever para Word</button>
+        </div>
+
+        <!-- ═══════════════════════ ABA UPLOAD ════════════════════════════ -->
+        <div id="uploadOptions" style="display:none">
+          <div class="field">
+            <label>Arquivo de áudio ou vídeo</label>
+            <div class="dropzone" id="dropzone"
+                 ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                 ondragleave="this.classList.remove('drag-over')"
+                 ondrop="handleDrop(event)">
+              <input type="file" id="fileInput" accept="audio/*,video/*" onchange="handleFileSelect(this)"/>
+              <div class="dropzone-icon">🎵</div>
+              <div class="dropzone-text"><strong>Clica para escolher</strong> ou arrasta aqui</div>
+              <div class="dropzone-hint">MP3, WAV, M4A, MP4, MKV, AVI, MOV e mais</div>
+              <div class="dropzone-file" id="selectedFileName"></div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="label-row">
+              <label>AssemblyAI API Key</label>
+              <span class="badge-free">100h grátis/mês</span>
+              <span class="badge-saved" id="badgeSavedUpload">● Salva</span>
+            </div>
+            <input type="password" id="apiKeyUpload" placeholder="Cole a tua API Key do AssemblyAI..."
+                   autocomplete="off" oninput="saveApiKey(this.value)"/>
+            <p class="hint">Obtém em assemblyai.com/dashboard</p>
+          </div>
+          <div class="field">
+            <label>Idioma do áudio</label>
+            <div class="pills">
+              <button class="pill active-purple" data-lang="pt" onclick="setLang(this,'upload')">Português</button>
+              <button class="pill" data-lang="en" onclick="setLang(this,'upload')">English</button>
+              <button class="pill" data-lang="es" onclick="setLang(this,'upload')">Español</button>
+              <button class="pill" data-lang="" onclick="setLang(this,'upload')">Auto</button>
+            </div>
+          </div>
+          <button class="btn btn-purple" id="uploadBtn" onclick="startUploadTranscription()">📁 Transcrever Arquivo</button>
+        </div>
+
+      </div>
+
+      <!-- Status -->
+      <div class="status-box" id="statusBox">
+        <div class="status-row">
+          <div class="status-msg info" id="statusMsg">Preparando...</div>
+          <button class="open-btn" id="openBtn" onclick="openOutputFolder()">Abrir pasta</button>
+        </div>
+        <div class="bar-bg"><div class="bar-fill yellow" id="barFill"></div></div>
+        <div class="bar-meta">
+          <span id="barPct">0%</span>
+          <span id="barSpeed"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      Rodando em <strong>localhost:7474</strong> &nbsp;·&nbsp; Use apenas para conteúdo com direito de acesso.
+    </footer>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let quality = '320';
+    let langMp3 = 'pt', langTrans = 'pt', langUpload = 'pt';
+    let mode = 'mp3';
+    let autoTranscribe = false;
+    let selectedFile = null;
+    let lastOutputFolder = '';
+
+    const API_KEY_STORAGE = 'tubecast_api_key';
+
+    // ── Config do servidor ───────────────────────────────────────────────────
+    async function loadConfig() {
+      try {
+        const r = await fetch('/config');
+        const cfg = await r.json();
+        if (cfg.defaultDir) {
+          document.getElementById('folderHint').textContent = 'Padrão: ' + cfg.defaultDir;
+          lastOutputFolder = cfg.defaultDir;
+        }
+      } catch {
+        document.getElementById('folderHint').textContent = 'Padrão: Downloads/TubeCast';
+      }
+    }
+
+    // ── API Key persistente ──────────────────────────────────────────────────
+    function saveApiKey(val) {
+      if (val.trim()) {
+        localStorage.setItem(API_KEY_STORAGE, val.trim());
+        updateBadges(true);
+        syncApiKeyFields(val.trim());
+      }
+    }
+
+    function syncApiKeyFields(val) {
+      ['apiKeyMp3', 'apiKeyTrans', 'apiKeyUpload'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value !== val) el.value = val;
+      });
+    }
+
+    function updateBadges(hasSaved) {
+      ['badgeSavedMp3', 'badgeSavedTrans', 'badgeSavedUpload'].forEach(id => {
+        document.getElementById(id).classList.toggle('visible', hasSaved);
+      });
+    }
+
+    function loadApiKey() {
+      const saved = localStorage.getItem(API_KEY_STORAGE);
+      if (saved) { syncApiKeyFields(saved); updateBadges(true); }
+    }
+
+    function getApiKey() {
+      return localStorage.getItem(API_KEY_STORAGE) ||
+             document.getElementById('apiKeyTrans').value.trim() ||
+             document.getElementById('apiKeyUpload').value.trim() ||
+             document.getElementById('apiKeyMp3').value.trim();
+    }
+
+    // ── Toggle auto-transcrever ──────────────────────────────────────────────
+    function toggleAuto() {
+      autoTranscribe = !autoTranscribe;
+      document.getElementById('autoToggle').classList.toggle('on', autoTranscribe);
+      document.getElementById('autoRow').classList.toggle('active', autoTranscribe);
+      document.getElementById('autoExtra').classList.toggle('visible', autoTranscribe);
+      document.getElementById('qualityField').style.display = autoTranscribe ? 'none' : '';
+      document.getElementById('dlBtn').innerHTML = autoTranscribe ? '✦ Transcrever para Word' : '⬇ Baixar MP3';
+      document.getElementById('dlBtn').className = autoTranscribe ? 'btn btn-blue' : 'btn btn-yellow';
+    }
+
+    // ── Tabs ─────────────────────────────────────────────────────────────────
+    function setMode(m) {
+      mode = m;
+      document.getElementById('tabMp3').className    = 'tab mp3'    + (m === 'mp3'    ? ' active' : '');
+      document.getElementById('tabTrans').className  = 'tab trans'  + (m === 'trans'  ? ' active' : '');
+      document.getElementById('tabUpload').className = 'tab upload' + (m === 'upload' ? ' active' : '');
+      document.getElementById('urlSection').style.display    = m !== 'upload' ? '' : 'none';
+      document.getElementById('mp3Options').style.display    = m === 'mp3'    ? '' : 'none';
+      document.getElementById('transOptions').style.display  = m === 'trans'  ? '' : 'none';
+      document.getElementById('uploadOptions').style.display = m === 'upload' ? '' : 'none';
+      const colors = { mp3: 'yellow', trans: 'blue', upload: 'purple' };
+      document.getElementById('barFill').className = 'bar-fill ' + colors[m];
+      document.getElementById('statusBox').classList.remove('visible');
+      document.getElementById('openBtn').classList.remove('visible');
+    }
+
+    function setQ(btn) {
+      document.querySelectorAll('[data-q]').forEach(b => b.classList.remove('active-yellow'));
+      btn.classList.add('active-yellow');
+      quality = btn.dataset.q;
+    }
+
+    function setLang(btn, tab) {
+      const cls = tab === 'upload' ? 'active-purple' : 'active-blue';
+      btn.closest('.pills').querySelectorAll('.pill').forEach(b => b.classList.remove(cls));
+      btn.classList.add(cls);
+      if (tab === 'mp3')    langMp3    = btn.dataset.lang;
+      if (tab === 'trans')  langTrans  = btn.dataset.lang;
+      if (tab === 'upload') langUpload = btn.dataset.lang;
+    }
+
+    function handleFileSelect(input) {
+      if (input.files && input.files[0]) {
+        selectedFile = input.files[0];
+        const el = document.getElementById('selectedFileName');
+        el.textContent = '✓ ' + selectedFile.name;
+        el.style.display = 'block';
+      }
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('dropzone').classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        selectedFile = file;
+        const el = document.getElementById('selectedFileName');
+        el.textContent = '✓ ' + file.name;
+        el.style.display = 'block';
+      }
+    }
+
+    // ── Toast ────────────────────────────────────────────────────────────────
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // ── Status / progress ────────────────────────────────────────────────────
+    function showStatus(msg, type) {
+      document.getElementById('statusBox').classList.add('visible');
+      const el = document.getElementById('statusMsg');
+      el.textContent = msg;
+      el.className = 'status-msg ' + type;
+    }
+
+    function setProgress(pct, speed = '') {
+      document.getElementById('barFill').style.width  = pct + '%';
+      document.getElementById('barPct').textContent   = Math.round(pct) + '%';
+      document.getElementById('barSpeed').textContent = speed;
+    }
+
+    function openOutputFolder() {
+      const folder = document.getElementById('folderInput').value.trim() || lastOutputFolder;
+      fetch('/open-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folder })
+      }).catch(() => showToast('Não foi possível abrir a pasta.'));
+    }
+
+    async function processStream(res, type) {
+      const reader = res.body.getReader(), decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of decoder.decode(value).split('\n').filter(l => l.startsWith('data:'))) {
+          try {
+            const d = JSON.parse(line.slice(5));
+            if (d.type === 'uploading')    { setProgress(10);    showStatus('Enviando arquivo...', 'info'); }
+            if (d.type === 'progress')     { setProgress(d.pct, d.speed || ''); showStatus('Baixando áudio...', 'info'); }
+            if (d.type === 'converting')   { setProgress(90);    showStatus('Convertendo formato...', 'info'); }
+            if (d.type === 'transcribing') { setProgress(95);    showStatus('Transcrevendo com AssemblyAI...', 'info'); }
+            if (d.type === 'done') {
+              setProgress(100);
+              document.getElementById('openBtn').classList.add('visible');
+              if (type === 'mp3')    showStatus('✓ MP3 salvo com sucesso!', 'ok');
+              if (type === 'trans')  showStatus('✓ Transcrição salva em Word!', 'ok-b');
+              if (type === 'upload') showStatus('✓ Transcrição salva em Word!', 'ok-p');
+            }
+            if (d.type === 'error') {
+              showStatus('✗ ' + d.msg, 'err');
+            }
+          } catch {}
+        }
+      }
+    }
+
+    // ── Ações ────────────────────────────────────────────────────────────────
+    async function startDownload() {
+      const url    = document.getElementById('urlInput').value.trim();
+      const folder = document.getElementById('folderInput').value.trim();
+      if (!url) { showStatus('Cole um link do YouTube primeiro.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
+
+      const btn = document.getElementById('dlBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>' + (autoTranscribe ? 'Processando...' : 'Baixando...');
+      document.getElementById('openBtn').classList.remove('visible');
+      showStatus('Buscando informações do vídeo...', 'info');
+      setProgress(0);
+
+      try {
+        if (autoTranscribe) {
+          const apiKey = getApiKey();
+          if (!apiKey) {
+            showStatus('✗ Insere a tua AssemblyAI API Key.', 'err');
+            btn.disabled = false;
+            btn.innerHTML = '✦ Transcrever para Word';
+            btn.className = 'btn btn-blue';
+            return;
+          }
+          const res = await fetch('/transcribe', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url, folder, apiKey, lang: langMp3 })
+          });
+          await processStream(res, 'trans');
+        } else {
+          const res = await fetch('/download', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url, quality, folder })
+          });
+          await processStream(res, 'mp3');
+        }
+      } catch {
+        showStatus('Servidor não encontrado. Tens o server.py rodando?', 'err');
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = autoTranscribe ? '✦ Transcrever para Word' : '⬇ Baixar MP3';
+      btn.className = autoTranscribe ? 'btn btn-blue' : 'btn btn-yellow';
+    }
+
+    async function startTranscription() {
+      const url    = document.getElementById('urlInput').value.trim();
+      const folder = document.getElementById('folderInput').value.trim();
+      const apiKey = getApiKey();
+      if (!url)    { showStatus('Cole um link do YouTube primeiro.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
+      if (!apiKey) { showStatus('Insere a tua AssemblyAI API Key.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
+
+      const btn = document.getElementById('transBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Processando...';
+      document.getElementById('openBtn').classList.remove('visible');
+      showStatus('Baixando áudio do vídeo...', 'info'); setProgress(0);
+
+      try {
+        const res = await fetch('/transcribe', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, folder, apiKey, lang: langTrans })
+        });
+        await processStream(res, 'trans');
+      } catch { showStatus('Servidor não encontrado. Tens o server.py rodando?', 'err'); }
+
+      btn.disabled = false; btn.innerHTML = '✦ Transcrever para Word';
+    }
+
+    async function startUploadTranscription() {
+      const folder = document.getElementById('folderInput').value.trim();
+      const apiKey = getApiKey();
+      if (!selectedFile) { showStatus('Escolhe um arquivo primeiro.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
+      if (!apiKey)        { showStatus('Insere a tua AssemblyAI API Key.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
+
+      const btn = document.getElementById('uploadBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Enviando...';
+      document.getElementById('openBtn').classList.remove('visible');
+      showStatus('Enviando arquivo...', 'info'); setProgress(5);
+
+      try {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        const res = await fetch('/transcribe-file', {
+          method: 'POST',
+          headers: { 'X-Api-Key': apiKey, 'X-Lang': langUpload, 'X-Folder': folder },
+          body: formData
+        });
+        await processStream(res, 'upload');
+      } catch { showStatus('Servidor não encontrado. Tens o server.py rodando?', 'err'); }
+
+      btn.disabled = false; btn.innerHTML = '📁 Transcrever Arquivo';
+    }
+
+    document.getElementById('urlInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') mode === 'mp3' ? startDownload() : startTranscription();
+    });
+
+    loadApiKey();
+    loadConfig();
+  </script>
+</body>
+</html>

@@ -662,7 +662,18 @@
       if (e.key === 'Enter') mode === 'mp3' ? startDownload() : startTranscription();
     });
 
+    async function loadConfig() {
+      try {
+        const r = await fetch('/config');
+        const cfg = await r.json();
+        if (cfg.apiKey) {
+          saveApiKey(cfg.apiKey);
+        }
+      } catch {}
+    }
+
     loadApiKey();
+    loadConfig();
   </script>
 </body>
 </html>

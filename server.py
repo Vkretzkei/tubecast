@@ -223,6 +223,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0]
 
+        if path == "/config":
+            self._json({
+                "defaultDir": str(DEFAULT_OUTPUT_DIR),
+                "apiKey": os.environ.get("ASSEMBLYAI_API_KEY", ""),
+            })
+            return
+
         if path.startswith("/result/"):
             self._serve_result(path[8:])
             return

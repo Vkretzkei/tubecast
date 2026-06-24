@@ -67,7 +67,6 @@
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 
-    /* Tabs */
     .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--border); }
     .tab {
       padding: 1rem 0.5rem; text-align: center;
@@ -88,7 +87,6 @@
     .tab.active.trans  { color: var(--blue); }
     .tab.active.upload { color: var(--purple); }
 
-    /* Form */
     .form-body { padding: 1.8rem; }
     .field { margin-bottom: 1.2rem; }
 
@@ -108,7 +106,6 @@
     input::placeholder { color: var(--muted); }
     .hint { font-size: 0.68rem; color: var(--muted); margin-top: 0.35rem; }
 
-    /* Label row com badge */
     .label-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem; }
     .label-row label { margin-bottom: 0; }
     .badge-free {
@@ -126,7 +123,6 @@
     }
     .badge-saved.visible { display: inline-block; }
 
-    /* Toggle auto-transcrever */
     .auto-transcribe-row {
       display: flex; align-items: center; gap: 0.75rem;
       background: var(--surface2); border: 1px solid var(--border2);
@@ -155,7 +151,6 @@
     .auto-transcribe-text strong { font-size: 0.85rem; color: var(--text); display: block; }
     .auto-transcribe-text span   { font-size: 0.72rem; color: var(--muted2); }
 
-    /* Painel extra da transcrição automática */
     .auto-extra {
       background: rgba(91,141,255,0.04); border: 1px solid rgba(91,141,255,0.15);
       border-radius: var(--radius-sm); padding: 1rem;
@@ -165,7 +160,6 @@
     .auto-extra .field { margin-bottom: 0.8rem; }
     .auto-extra .field:last-child { margin-bottom: 0; }
 
-    /* Pills */
     .pills { display: flex; gap: 0.4rem; flex-wrap: wrap; }
     .pill {
       padding: 0.4rem 0.9rem; border-radius: 99px; border: 1px solid var(--border2);
@@ -177,7 +171,6 @@
     .pill.active-blue   { border-color: var(--blue);   color: var(--blue);   background: rgba(91,141,255,0.08); }
     .pill.active-purple { border-color: var(--purple); color: var(--purple); background: rgba(168,85,247,0.08); }
 
-    /* Drop zone */
     .dropzone {
       border: 2px dashed var(--border2); border-radius: var(--radius-sm);
       padding: 2rem 1rem; text-align: center; cursor: pointer;
@@ -191,7 +184,6 @@
     .dropzone-hint { font-size: 0.68rem; color: var(--muted); margin-top: 0.3rem; }
     .dropzone-file { margin-top: 0.8rem; font-size: 0.8rem; color: var(--purple); font-weight: 500; display: none; }
 
-    /* Buttons */
     .btn {
       width: 100%; border: none; border-radius: var(--radius-sm);
       font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
@@ -206,7 +198,6 @@
     .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    /* Status */
     .status-box {
       margin: 0 1.8rem 1.8rem;
       background: var(--surface2); border: 1px solid var(--border);
@@ -221,14 +212,17 @@
     .status-msg.err  { color: var(--red); }
     .status-msg.info { color: var(--text); }
 
-    .open-btn {
-      font-size: 0.68rem; font-weight: 600; font-family: 'Inter', sans-serif;
-      color: var(--muted2); background: var(--border2); border: none;
-      border-radius: 6px; padding: 0.25rem 0.6rem; cursor: pointer;
-      white-space: nowrap; transition: color 0.15s, background 0.15s; flex-shrink: 0; display: none;
+    .dl-btn {
+      font-size: 0.7rem; font-weight: 700; font-family: 'Syne', sans-serif;
+      letter-spacing: 0.04em; color: #000; background: var(--yellow);
+      border: none; border-radius: 6px; padding: 0.3rem 0.75rem;
+      cursor: pointer; white-space: nowrap; transition: opacity 0.15s;
+      flex-shrink: 0; display: none;
     }
-    .open-btn:hover { color: var(--text); background: var(--border); }
-    .open-btn.visible { display: inline-block; }
+    .dl-btn:hover { opacity: 0.85; }
+    .dl-btn.blue   { background: var(--blue); color: #fff; }
+    .dl-btn.purple { background: var(--purple); color: #fff; }
+    .dl-btn.visible { display: inline-block; }
 
     .bar-bg { background: var(--border2); border-radius: 99px; height: 5px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 99px; width: 0%; transition: width 0.4s ease; }
@@ -247,16 +241,6 @@
       animation: spin 0.7s linear infinite; flex-shrink: 0;
     }
     .btn-blue .spinner, .btn-purple .spinner { border-color: rgba(255,255,255,0.2); border-top-color: #fff; }
-
-    /* Toast */
-    .toast {
-      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(2rem);
-      background: var(--surface); border: 1px solid var(--border2);
-      border-radius: var(--radius-sm); padding: 0.75rem 1.2rem;
-      font-size: 0.8rem; color: var(--text); white-space: nowrap;
-      opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 99;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -280,19 +264,11 @@
 
       <div class="form-body">
 
-        <!-- URL (mp3 + trans) -->
         <div id="urlSection">
           <div class="field">
             <label>Link do YouTube</label>
             <input type="text" id="urlInput" placeholder="https://youtube.com/watch?v=..." autocomplete="off" spellcheck="false"/>
           </div>
-        </div>
-
-        <!-- Pasta -->
-        <div class="field">
-          <label>Pasta de destino</label>
-          <input type="text" id="folderInput" placeholder="Deixa vazio para usar a pasta padrão" autocomplete="off" spellcheck="false"/>
-          <p class="hint" id="folderHint">Padrão: carregando...</p>
         </div>
 
         <!-- ═══════════════════════════ ABA MP3 ═══════════════════════════ -->
@@ -406,7 +382,7 @@
       <div class="status-box" id="statusBox">
         <div class="status-row">
           <div class="status-msg info" id="statusMsg">Preparando...</div>
-          <button class="open-btn" id="openBtn" onclick="openOutputFolder()">Abrir pasta</button>
+          <button class="dl-btn" id="downloadResultBtn" onclick="triggerDownload()"></button>
         </div>
         <div class="bar-bg"><div class="bar-fill yellow" id="barFill"></div></div>
         <div class="bar-meta">
@@ -418,12 +394,10 @@
     </div>
 
     <footer>
-      Rodando em <strong>localhost:7474</strong> &nbsp;·&nbsp; Use apenas para conteúdo com direito de acesso.
+      Use apenas para conteúdo com direito de acesso.
     </footer>
 
   </div>
-
-  <div class="toast" id="toast"></div>
 
   <script>
     let quality = '320';
@@ -431,25 +405,11 @@
     let mode = 'mp3';
     let autoTranscribe = false;
     let selectedFile = null;
-    let lastOutputFolder = '';
+    let pendingDownload = null; // { id, filename }
 
     const API_KEY_STORAGE = 'tubecast_api_key';
 
-    // ── Config do servidor ───────────────────────────────────────────────────
-    async function loadConfig() {
-      try {
-        const r = await fetch('/config');
-        const cfg = await r.json();
-        if (cfg.defaultDir) {
-          document.getElementById('folderHint').textContent = 'Padrão: ' + cfg.defaultDir;
-          lastOutputFolder = cfg.defaultDir;
-        }
-      } catch {
-        document.getElementById('folderHint').textContent = 'Padrão: Downloads/TubeCast';
-      }
-    }
-
-    // ── API Key persistente ──────────────────────────────────────────────────
+    // ── API Key ──────────────────────────────────────────────────────────────
     function saveApiKey(val) {
       if (val.trim()) {
         localStorage.setItem(API_KEY_STORAGE, val.trim());
@@ -457,25 +417,21 @@
         syncApiKeyFields(val.trim());
       }
     }
-
     function syncApiKeyFields(val) {
       ['apiKeyMp3', 'apiKeyTrans', 'apiKeyUpload'].forEach(id => {
         const el = document.getElementById(id);
         if (el && el.value !== val) el.value = val;
       });
     }
-
     function updateBadges(hasSaved) {
       ['badgeSavedMp3', 'badgeSavedTrans', 'badgeSavedUpload'].forEach(id => {
         document.getElementById(id).classList.toggle('visible', hasSaved);
       });
     }
-
     function loadApiKey() {
       const saved = localStorage.getItem(API_KEY_STORAGE);
       if (saved) { syncApiKeyFields(saved); updateBadges(true); }
     }
-
     function getApiKey() {
       return localStorage.getItem(API_KEY_STORAGE) ||
              document.getElementById('apiKeyTrans').value.trim() ||
@@ -483,7 +439,7 @@
              document.getElementById('apiKeyMp3').value.trim();
     }
 
-    // ── Toggle auto-transcrever ──────────────────────────────────────────────
+    // ── Auto-transcrever ─────────────────────────────────────────────────────
     function toggleAuto() {
       autoTranscribe = !autoTranscribe;
       document.getElementById('autoToggle').classList.toggle('on', autoTranscribe);
@@ -507,7 +463,8 @@
       const colors = { mp3: 'yellow', trans: 'blue', upload: 'purple' };
       document.getElementById('barFill').className = 'bar-fill ' + colors[m];
       document.getElementById('statusBox').classList.remove('visible');
-      document.getElementById('openBtn').classList.remove('visible');
+      document.getElementById('downloadResultBtn').classList.remove('visible');
+      pendingDownload = null;
     }
 
     function setQ(btn) {
@@ -546,15 +503,28 @@
       }
     }
 
-    // ── Toast ────────────────────────────────────────────────────────────────
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2500);
+    // ── Download do resultado ────────────────────────────────────────────────
+    function triggerDownload() {
+      if (!pendingDownload) return;
+      const a = document.createElement('a');
+      a.href = `/result/${pendingDownload.id}`;
+      a.download = pendingDownload.filename;
+      a.click();
     }
 
-    // ── Status / progress ────────────────────────────────────────────────────
+    function showDownloadBtn(id, filename, colorClass) {
+      pendingDownload = { id, filename };
+      const btn = document.getElementById('downloadResultBtn');
+      btn.textContent = '⬇ Baixar';
+      btn.className = `dl-btn ${colorClass} visible`;
+      // auto-download
+      const a = document.createElement('a');
+      a.href = `/result/${id}`;
+      a.download = filename;
+      a.click();
+    }
+
+    // ── Status ───────────────────────────────────────────────────────────────
     function showStatus(msg, type) {
       document.getElementById('statusBox').classList.add('visible');
       const el = document.getElementById('statusMsg');
@@ -566,15 +536,6 @@
       document.getElementById('barFill').style.width  = pct + '%';
       document.getElementById('barPct').textContent   = Math.round(pct) + '%';
       document.getElementById('barSpeed').textContent = speed;
-    }
-
-    function openOutputFolder() {
-      const folder = document.getElementById('folderInput').value.trim() || lastOutputFolder;
-      fetch('/open-folder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folder })
-      }).catch(() => showToast('Não foi possível abrir a pasta.'));
     }
 
     async function processStream(res, type) {
@@ -591,14 +552,18 @@
             if (d.type === 'transcribing') { setProgress(95);    showStatus('Transcrevendo com AssemblyAI...', 'info'); }
             if (d.type === 'done') {
               setProgress(100);
-              document.getElementById('openBtn').classList.add('visible');
-              if (type === 'mp3')    showStatus('✓ MP3 salvo com sucesso!', 'ok');
-              if (type === 'trans')  showStatus('✓ Transcrição salva em Word!', 'ok-b');
-              if (type === 'upload') showStatus('✓ Transcrição salva em Word!', 'ok-p');
+              if (type === 'mp3') {
+                showStatus('✓ MP3 pronto!', 'ok');
+                showDownloadBtn(d.id, d.filename, '');
+              } else if (type === 'trans') {
+                showStatus('✓ Transcrição pronta!', 'ok-b');
+                showDownloadBtn(d.id, d.filename, 'blue');
+              } else if (type === 'upload') {
+                showStatus('✓ Transcrição pronta!', 'ok-p');
+                showDownloadBtn(d.id, d.filename, 'purple');
+              }
             }
-            if (d.type === 'error') {
-              showStatus('✗ ' + d.msg, 'err');
-            }
+            if (d.type === 'error') { showStatus('✗ ' + d.msg, 'err'); }
           } catch {}
         }
       }
@@ -606,14 +571,13 @@
 
     // ── Ações ────────────────────────────────────────────────────────────────
     async function startDownload() {
-      const url    = document.getElementById('urlInput').value.trim();
-      const folder = document.getElementById('folderInput').value.trim();
+      const url = document.getElementById('urlInput').value.trim();
       if (!url) { showStatus('Cole um link do YouTube primeiro.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
 
       const btn = document.getElementById('dlBtn');
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span>' + (autoTranscribe ? 'Processando...' : 'Baixando...');
-      document.getElementById('openBtn').classList.remove('visible');
+      document.getElementById('downloadResultBtn').classList.remove('visible');
       showStatus('Buscando informações do vídeo...', 'info');
       setProgress(0);
 
@@ -629,13 +593,13 @@
           }
           const res = await fetch('/transcribe', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url, folder, apiKey, lang: langMp3 })
+            body: JSON.stringify({ url, apiKey, lang: langMp3 })
           });
           await processStream(res, 'trans');
         } else {
           const res = await fetch('/download', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url, quality, folder })
+            body: JSON.stringify({ url, quality })
           });
           await processStream(res, 'mp3');
         }
@@ -650,20 +614,19 @@
 
     async function startTranscription() {
       const url    = document.getElementById('urlInput').value.trim();
-      const folder = document.getElementById('folderInput').value.trim();
       const apiKey = getApiKey();
       if (!url)    { showStatus('Cole um link do YouTube primeiro.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
       if (!apiKey) { showStatus('Insere a tua AssemblyAI API Key.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
 
       const btn = document.getElementById('transBtn');
       btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Processando...';
-      document.getElementById('openBtn').classList.remove('visible');
+      document.getElementById('downloadResultBtn').classList.remove('visible');
       showStatus('Baixando áudio do vídeo...', 'info'); setProgress(0);
 
       try {
         const res = await fetch('/transcribe', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, folder, apiKey, lang: langTrans })
+          body: JSON.stringify({ url, apiKey, lang: langTrans })
         });
         await processStream(res, 'trans');
       } catch { showStatus('Servidor não encontrado. Tens o server.py rodando?', 'err'); }
@@ -672,14 +635,13 @@
     }
 
     async function startUploadTranscription() {
-      const folder = document.getElementById('folderInput').value.trim();
       const apiKey = getApiKey();
       if (!selectedFile) { showStatus('Escolhe um arquivo primeiro.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
       if (!apiKey)        { showStatus('Insere a tua AssemblyAI API Key.', 'err'); document.getElementById('statusBox').classList.add('visible'); return; }
 
       const btn = document.getElementById('uploadBtn');
       btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Enviando...';
-      document.getElementById('openBtn').classList.remove('visible');
+      document.getElementById('downloadResultBtn').classList.remove('visible');
       showStatus('Enviando arquivo...', 'info'); setProgress(5);
 
       try {
@@ -687,7 +649,7 @@
         formData.append('file', selectedFile);
         const res = await fetch('/transcribe-file', {
           method: 'POST',
-          headers: { 'X-Api-Key': apiKey, 'X-Lang': langUpload, 'X-Folder': folder },
+          headers: { 'X-Api-Key': apiKey, 'X-Lang': langUpload },
           body: formData
         });
         await processStream(res, 'upload');
@@ -701,7 +663,6 @@
     });
 
     loadApiKey();
-    loadConfig();
   </script>
 </body>
 </html>
